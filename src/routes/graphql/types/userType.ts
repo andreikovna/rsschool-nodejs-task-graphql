@@ -28,7 +28,12 @@ export const userGraphType = new GraphQLObjectType({
     memberType: {
       type: memberTypeGraphType,
       resolve: async (source: any, args: any, fastify) => {
-        return await fastify.db.memberTypes.findOne({key: 'userId', equals: source.id});
+        const profile = await fastify.db.profiles.findOne({key: 'userId', equals: source.id});
+        if (profile) {
+          return await fastify.db.memberTypes.findOne({key: 'userId', equals: profile.memberTypeId});
+        } else {
+          return Promise.resolve(null);
+        }
       }
     },
   }),
