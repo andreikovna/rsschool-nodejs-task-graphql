@@ -1,3 +1,4 @@
+import { UserEntity } from './../../utils/DB/entities/DBUsers';
 import { GraphQLString } from 'graphql/type';
 import { GraphQLList, GraphQLSchema } from 'graphql/type';
 import { GraphQLObjectType } from 'graphql';
@@ -8,6 +9,11 @@ import { memberTypeGraphType } from './types/memberType';
 import { profileGraphType } from './types/profileType';
 import { postGraphType } from './types/postType';
 import { userGraphType } from './types/userType';
+import { userCreationType } from './creation/createUser';
+import { profileCreationType } from './creation/createProfile';
+import { ProfileEntity } from '../../utils/DB/entities/DBProfiles';
+import { postCreationType } from './creation/createPost';
+import { PostEntity } from '../../utils/DB/entities/DBPosts';
 
 const plugin: FastifyPluginAsyncJsonSchemaToTs = async (
   fastify
@@ -97,9 +103,51 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async (
           },
         },
       });
+      const mutation = new GraphQLObjectType({
+        name: 'mutation',
+        fields: {
+          createUser: {
+            type: userGraphType,
+            args: {
+              data: { type: userCreationType },
+            },
+            resolve: async (parents, args) => {
+              const data = request.body.variables?.data as UserEntity;
+              return await fastify.db.users.create(data);
+            },
+          },
+          createProfile: {
+            type: profileGraphType,
+            args: {
+              data: { type: profileCreationType },
+            },
+            resolve: async (parents, args) => {
+              const data = request.body.variables?.data as ProfileEntity;
+              const user = await fastify.db.users.findOne({key: 'id', equals: data.userId});
+              if (user) {
+                return await fastify.db.profiles.create(data);
+              }
+            },
+          },
+          createPost: {
+            type: postGraphType,
+            args: {
+              data: { type: postCreationType },
+            },
+            resolve: async (parents, args) => {
+              const data = request.body.variables?.data as PostEntity;
+              const user = await fastify.db.users.findOne({key: 'id', equals: data.userId});
+              if (user) {
+                return await fastify.db.posts.create(data);
+              }
+            },
+          },
+        },
+      });
 
       const schema = new GraphQLSchema({
         query,
+        mutation,
       });
 
       return await graphql({
