@@ -106,7 +106,7 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async (
         key: 'id',
         equals: userId,
       });
-      if (user1 && user2) {
+      if (user1 && user2 && !user2.subscribedToUserIds.includes(id)) {
         user2.subscribedToUserIds.push(id);
         return await fastify.db.users.change(userId, user2);
       } else {
