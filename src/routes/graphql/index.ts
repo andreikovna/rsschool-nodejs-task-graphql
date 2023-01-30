@@ -1,8 +1,7 @@
-import { GraphQLID } from 'graphql/type';
 import { UserEntity } from './../../utils/DB/entities/DBUsers';
 import { GraphQLString } from 'graphql/type';
 import { GraphQLList, GraphQLSchema } from 'graphql/type';
-import { GraphQLObjectType, GraphQLNonNull } from 'graphql';
+import { GraphQLObjectType } from 'graphql';
 import { FastifyPluginAsyncJsonSchemaToTs } from '@fastify/type-provider-json-schema-to-ts';
 import { graphqlBodySchema } from './schema';
 import { graphql } from 'graphql/graphql';
@@ -229,8 +228,8 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async (
           subscribeTo: {
             type: userGraphType,
             args: {
-              userToSubscribeId: { type: new GraphQLNonNull(GraphQLID) },
-              userId: { type: new GraphQLNonNull(GraphQLID) },
+              userToSubscribeId: {type: GraphQLString},
+              userId: {type: GraphQLString},
             },
             resolve: async (parents, args) => {
               const userId = request.body.variables?.userId as string;
@@ -252,8 +251,8 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async (
           unsubscribeFrom: {
             type: userGraphType,
             args: {
-              userUnsubscribeFromId: { type: new GraphQLNonNull(GraphQLID) },
-              userId: { type: new GraphQLNonNull(GraphQLID) },
+              userUnsubscribeFromId: {type: GraphQLString},
+              userId: {type: GraphQLString},
             },
             resolve: async (parent, args, fastify) => {
               const userId = request.body.variables?.userId as string;
