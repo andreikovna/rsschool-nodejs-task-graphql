@@ -1,7 +1,7 @@
 import { UserEntity } from './../../utils/DB/entities/DBUsers';
 import { GraphQLString } from 'graphql/type';
 import { GraphQLList, GraphQLSchema } from 'graphql/type';
-import { GraphQLObjectType } from 'graphql';
+import { GraphQLObjectType, validate, parse } from 'graphql';
 import { FastifyPluginAsyncJsonSchemaToTs } from '@fastify/type-provider-json-schema-to-ts';
 import { graphqlBodySchema } from './schema';
 import { graphql } from 'graphql/graphql';
@@ -19,6 +19,8 @@ import { postUpdateType } from './update/updatePost';
 import { profileUpdateType } from './update/updateProfile';
 import { memberTypeUpdateType } from './update/updateMemberType';
 import { MemberTypeEntity } from '../../utils/DB/entities/DBMemberTypes';
+import depthLimit = require('graphql-depth-limit');
+
 
 const plugin: FastifyPluginAsyncJsonSchemaToTs = async (
   fastify
@@ -278,6 +280,16 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async (
         query,
         mutation,
       });
+
+      const depthErrors = validate(schema, parse(String(request.body.query)), [
+        depthLimit(5)
+      ]);
+
+      if (depthErrors.length) {
+        return {
+          errors: depthErrors,
+        };
+      }
 
       return await graphql({
         schema,

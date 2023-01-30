@@ -378,6 +378,27 @@ mutation unsubscribeFrom($userUnsubscribeFromId: String, $userId: String){
    4.1. Provide a link to the line of code where it was used.  
    4.2. Specify a POST body of gql query that ends with an error due to the operation of the rule. Request result should be with `errors` field (and with or without `data:null`) describing the error.
 
+   query {
+    getAllUsers{
+        id
+        userSubscribedTo{
+            id
+            userSubscribedTo{
+                id
+                userSubscribedTo{
+                    id
+                    userSubscribedTo{
+                        id
+                        userSubscribedTo{
+                            id
+                        }
+                    }
+                }
+            }
+        }
+    }
+  }
+
 ### Description:
 
 All dependencies to complete this task are already installed.  
